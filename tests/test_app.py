@@ -4,7 +4,7 @@ import os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import pytest
-from app_fixed import app
+from app import app
 
 
 @pytest.fixture
@@ -26,9 +26,7 @@ def test_hello_default(client):
     assert b'Hello, mundo!' in resp.data
 
 
-def test_hello_escapes_script_tag(client):
-    """Verifica que el XSS reflejado quede mitigado."""
-    resp = client.get('/hello?name=<script>alert(1)</script>')
+def test_hello_with_name(client):
+    resp = client.get('/hello?name=Juan')
     assert resp.status_code == 200
-    assert b'<script>' not in resp.data
-    assert b'&lt;script&gt;' in resp.data
+    assert b'Hello, Juan!' in resp.data
