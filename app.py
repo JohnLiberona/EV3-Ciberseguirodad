@@ -1,17 +1,18 @@
 from flask import Flask, request
 from markupsafe import escape
+from prometheus_flask_exporter import PrometheusMetrics
 
 app = Flask(__name__)
+metrics = PrometheusMetrics(app)  # expone automáticamente /metrics
 
 
 @app.after_request
 def add_security_headers(response):
-    # Mitiga los warnings reportados por OWASP ZAP:
-    response.headers['X-Frame-Options'] = 'DENY'                      # Missing Anti-clickjacking Header [10020]
-    response.headers['X-Content-Type-Options'] = 'nosniff'            # X-Content-Type-Options Header Missing [10021]
-    response.headers['Content-Security-Policy'] = "default-src 'self'"  # CSP Header Not Set [10038]
-    response.headers['Permissions-Policy'] = 'geolocation=(), microphone=(), camera=()'  # Permissions Policy Header Not Set [10063]
-    response.headers.pop('Server', None)                              # Server Leaks Version Information [10036]
+    response.headers['X-Frame-Options'] = 'DENY'
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    response.headers['Content-Security-Policy'] = "default-src 'self'"
+    response.headers['Permissions-Policy'] = 'geolocation=(), microphone=(), camera=()'
+    response.headers.pop('Server', None)
     return response
 
 
